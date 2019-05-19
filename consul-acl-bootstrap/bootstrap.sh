@@ -112,8 +112,9 @@ kubectl create secret generic acl-config --from-file=acl_config.hcl -n $NAMESPAC
 # export FULLNAME="arctiqtim-consul"
 # export NAMESPACE="consul"
 # export PORT=8501
-kubectl patch statefulset $FULLNAME-server -n $NAMESPACE -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"consul\",\"ports\":[{\"containerPort\":$PORT,\"hostPort\":$PORT,\"name\":\"https\"}]}]}}}}"
+kubectl patch statefulset $FULLNAME-server -n $NAMESPACE -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"consul\",\"ports\":[{\"containerPort\":$PORT,\"name\":\"https\"}]}]}}}}"
 kubectl patch daemonset $FULLNAME -n $NAMESPACE -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"consul\",\"ports\":[{\"containerPort\":$PORT,\"hostPort\":$PORT,\"name\":\"https\"}]}]}}}}"
+kubectl patch service $FULLNAME-server -n $NAMESPACE -p "{\"spec\":{\"clusterIP\":\"None\",\"ports\":[{\"name\":\"https\",\"port\":$PORT,\"protocol\":\"TCP\",\"targetPort\":$PORT}]}}"
 # kubectl patch statefulset $FULLNAME-server -n $NAMESPACE -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"date\":\"`date +'%s'`\"}}}}}"
 # kubectl patch daemonset $FULLNAME -n $NAMESPACE -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"date\":\"`date +'%s'`\"}}}}}"
 }

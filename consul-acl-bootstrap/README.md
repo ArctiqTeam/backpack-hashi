@@ -154,3 +154,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * Hat tip to anyone whose code was used
 * Inspiration
 * etc
+
+
+gcloud builds submit --project arctiqteam-images --substitutions=TAG_NAME="1.9"

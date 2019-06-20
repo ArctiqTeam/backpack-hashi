@@ -112,8 +112,8 @@ kubectl create secret generic acl-config --from-file=acl_config.hcl -n $NAMESPAC
 # export FULLNAME="arctiqtim-consul"
 # export NAMESPACE="consul"
 # export PORT=8501
-kubectl patch statefulset $FULLNAME-server -n $NAMESPACE -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"consul\",\"ports\":[{\"containerPort\":$PORT,\"name\":\"https\"}]}]}}}}"
-kubectl patch daemonset $FULLNAME -n $NAMESPACE -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"consul\",\"ports\":[{\"containerPort\":$PORT,\"hostPort\":$PORT,\"name\":\"https\"}]}]}}}}"
+kubectl patch statefulset $FULLNAME-server -n $NAMESPACE -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"consul\",\"ports\":[{\"containerPort\":$PORT,\"hostPort\":$PORT,\"name\":\"https\"}],\"env\":[{\"name\":\"CONSUL_HTTP_TOKEN\",\"valueFrom\":{\"secretKeyRef\":{\"key\":\"token\",\"name\":\"acl-agent-token\"}}}],\"volumeMounts\":[{\"mountPath\":\"/consul/userconfig/acl-agent-token\",\"name\":\"userconfig-agent-token\"}]}],\"volumes\":[{\"name\":\"userconfig-agent-token\",\"secret\":{\"secretName\":\"acl-agent-token\"}}]}}}}"
+kubectl patch daemonset $FULLNAME -n $NAMESPACE -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"consul\",\"ports\":[{\"containerPort\":$PORT,\"hostPort\":$PORT,\"name\":\"https\"}],\"env\":[{\"name\":\"CONSUL_HTTP_TOKEN\",\"valueFrom\":{\"secretKeyRef\":{\"key\":\"token\",\"name\":\"acl-agent-token\"}}}],\"volumeMounts\":[{\"mountPath\":\"/consul/userconfig/acl-agent-token\",\"name\":\"userconfig-agent-token\"}]}],\"volumes\":[{\"name\":\"userconfig-agent-token\",\"secret\":{\"secretName\":\"acl-agent-token\"}}]}}}}"
 kubectl patch service $FULLNAME-server -n $NAMESPACE -p "{\"spec\":{\"clusterIP\":\"None\",\"ports\":[{\"name\":\"https\",\"port\":$PORT,\"protocol\":\"TCP\",\"targetPort\":$PORT}]}}"
 # kubectl patch statefulset $FULLNAME-server -n $NAMESPACE -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"date\":\"`date +'%s'`\"}}}}}"
 # kubectl patch daemonset $FULLNAME -n $NAMESPACE -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"date\":\"`date +'%s'`\"}}}}}"
@@ -188,6 +188,7 @@ done
 # echo "Fullname is: $FULLNAME"
 
 if [ "$NAMESPACE" ] && [ "$FULLNAME" ] && [ "$PORT" ]; then
+  sleep 30
   bootstrap
 else
   usage

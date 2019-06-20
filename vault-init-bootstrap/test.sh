@@ -25,3 +25,23 @@ do
 done
 
 kubectl create secret generic root-token --from-literal=root-token=${ROOT_TOKEN} -n vault
+
+spec:
+  containers:
+  - name: vault
+    lifecycle:
+      preStop:
+        exec:
+          command:
+            - "sh"
+            - "-c"
+            - |
+              apk add curl
+              declare -a keys
+              for i in {1..3}; do curl --insecure --request PUT --data '{"key":"${KEY}_$i"}' "${VAULT_ADDR}/v1/sys/unseal"
+              unset env vars
+
+declare -a keys
+for i in {1..3}; do UNSEAL_KEY="KEY_$i"; curl --insecure --request PUT --data '{"key":"'"${UNSEAL_KEY}"'"}' "${VAULT_ADDR}/v1/sys/unseal"; done
+
+for i in {1..3}; do export UNSEAL_KEY=KEY_[$i]; curl --insecure --request PUT --data '{"key":"'"${KEY_[$i]}"'"}' "${VAULT_ADDR}/v1/sys/unseal"; done
